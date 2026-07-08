@@ -49,8 +49,17 @@ exports.handler = async function (event) {
       };
     }
 
-    // Wir parsen + re-serialisieren um nur was der Client braucht rauszugeben
     const raw = JSON.parse(text);
+
+    // ?debug=1 → rohe PriceLabs-Antwort (nur zum Debuggen, danach entfernen)
+    if (event.queryStringParameters?.debug === '1') {
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(raw),
+      };
+    }
+
     const days = extractDays(raw);
 
     return {
@@ -58,7 +67,7 @@ exports.handler = async function (event) {
       headers: {
         ...corsHeaders(),
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600', // 1h cachen
+        'Cache-Control': 'public, max-age=3600',
       },
       body: JSON.stringify({ days }),
     };
