@@ -876,6 +876,104 @@
       .waves-track { animation: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
     }
+
+    /* ═══════════════════════════════════════
+       PREISWIDGET (PriceLabs)
+    ═══════════════════════════════════════ */
+    .price-widget {
+      margin: 2.4rem 0 0;
+      background: var(--white);
+      border-radius: var(--r);
+      padding: 1.6rem 1.6rem 1.2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--sky-pale);
+    }
+    .price-widget-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--ocean);
+      text-align: center;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+    .price-loading {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .88rem;
+      padding: 1rem 0;
+    }
+    .price-spinner {
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 2px solid var(--sky-pale);
+      border-top-color: var(--ocean);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: .4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .price-weeks {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      overflow-x: auto;
+      padding-bottom: .4rem;
+    }
+    .price-week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: .25rem;
+      min-width: 500px;
+    }
+    .price-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: .4rem .15rem;
+      border-radius: 8px;
+      gap: .1rem;
+    }
+    .price-day--free {
+      background: var(--cream);
+      border: 1px solid rgba(91,175,214,.3);
+    }
+    .price-day--booked {
+      background: transparent;
+      opacity: .45;
+    }
+    .price-day--empty {
+      background: transparent;
+    }
+    .pday-dow {
+      font-size: .6rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+    }
+    .pday-date {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .pday-price {
+      font-size: .78rem;
+      font-weight: 800;
+      color: var(--ocean);
+    }
+    .price-day--booked .pday-price {
+      font-weight: 400;
+      font-size: .68rem;
+      color: var(--text-muted);
+    }
+    .price-hint {
+      margin: .9rem 0 0;
+      font-size: .75rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -1346,6 +1444,18 @@
       <h2 class="section-title">So sichert ihr euch das <em>Seesternchen</em></h2>
       <p class="section-sub section-sub--center">Alle Kanäle sind kalendersynchronisiert – die Verfügbarkeit ist immer aktuell.</p>
     </div>
+
+    <!-- PriceLabs Preiswidget -->
+    <div class="price-widget reveal" id="price-widget">
+      <p class="price-widget-title">Preise auf einen Blick · nächste 90 Tage</p>
+      <div class="price-calendar" id="price-calendar">
+        <div class="price-loading" id="price-loading">
+          <span class="price-spinner"></span> Preise werden geladen …
+        </div>
+      </div>
+      <p class="price-hint">Preise dynamisch – täglich aktuell aus unserem Revenue-Management</p>
+    </div>
+
     <div class="booking-cards">
       <div class="booking-card reveal d1">
         <div class="booking-card__logo">AirBnB</div>
@@ -1712,6 +1822,81 @@ if (anreise && abreise) {
     if (e.key === 'ArrowLeft')  prev();
     if (e.key === 'ArrowRight') next();
   });
+})();
+
+// ── PriceLabs Preiswidget ─────────────────────────────────────────────────────
+(async function () {
+  const widget   = document.getElementById('price-widget');
+  const calendar = document.getElementById('price-calendar');
+  const loading  = document.getElementById('price-loading');
+
+  try {
+    const resp = await fetch('/.netlify/functions/pricelabs');
+    if (!resp.ok) throw new Error(`Status ${resp.status}`);
+    const data = await resp.json();
+    const days = data.days || [];
+    if (!days.length) throw new Error('Keine Preisdaten');
+
+    loading.remove();
+    calendar.appendChild(buildCalendar(days));
+
+  } catch (err) {
+    // Bei Fehler Widget lautlos ausblenden – Seite bleibt voll funktionsfähig
+    if (widget) widget.style.display = 'none';
+    console.warn('PriceLabs Widget:', err.message);
+  }
+
+  function buildCalendar(days) {
+    const wrap = document.createElement('div');
+    wrap.className = 'price-weeks';
+
+    toWeeks(days).forEach(week => {
+      const row = document.createElement('div');
+      row.className = 'price-week';
+
+      week.forEach(day => {
+        const cell = document.createElement('div');
+        if (!day || day.empty) {
+          cell.className = 'price-day price-day--empty';
+          row.appendChild(cell);
+          return;
+        }
+        const d   = new Date(day.date + 'T00:00:00');
+        const dow = d.toLocaleDateString('de-DE', { weekday: 'short' });
+        const dom = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+
+        if (!day.available || day.price === null) {
+          cell.className = 'price-day price-day--booked';
+          cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">Belegt</span>`;
+        } else {
+          cell.className = 'price-day price-day--free';
+          cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">${day.price} €</span>`;
+        }
+        row.appendChild(cell);
+      });
+
+      wrap.appendChild(row);
+    });
+
+    return wrap;
+  }
+
+  function toWeeks(days) {
+    const weeks = [];
+    let week    = [];
+    const firstDow = (new Date(days[0].date + 'T00:00:00').getDay() + 6) % 7; // 0=Mo
+    for (let i = 0; i < firstDow; i++) week.push({ empty: true });
+
+    days.forEach(day => {
+      if (week.length === 7) { weeks.push(week); week = []; }
+      week.push(day);
+    });
+    if (week.length) {
+      while (week.length < 7) week.push({ empty: true });
+      weeks.push(week);
+    }
+    return weeks;
+  }
 })();
 </script>
 
