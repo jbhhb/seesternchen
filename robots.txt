@@ -5,5 +5,5 @@ Allow: /
 Disallow: /danke
 Disallow: /danke.html
 
-Sitemap: https://fewo-seesternchen.de/sitemap.xml
+Sitemap: https://www.fewo-seesternchen.de/sitemap.xml
 
