@@ -881,9 +881,9 @@
     }
 
     /* ═══════════════════════════════════════
-       PREISWIDGET (PriceLabs)
+       PREISWIDGET – SPINNER
     ═══════════════════════════════════════ */
-    .price-widget {
+    .price-widget-UNUSED {
       margin: 2.4rem 0 0;
       background: var(--white);
       border-radius: var(--r);
@@ -1855,121 +1855,6 @@ if (anreise && abreise) {
   });
 })();
 
-// ── PriceLabs Kalender ────────────────────────────────────────────────────────
-(async function () {
-  const calMonths = document.getElementById('calMonths');
-  const calStatus = document.getElementById('calStatus');
-  const loading   = document.getElementById('pcal-loading');
-
-  try {
-    const resp = await fetch('/.netlify/functions/pricelabs');
-    if (!resp.ok) throw new Error(`Status ${resp.status}`);
-    const data = await resp.json();
-    const days = data.days || [];
-    if (!days.length) throw new Error('Keine Preisdaten');
-
-    if (loading) loading.remove();
-    calMonths.appendChild(buildCalendar(days));
-    if (calStatus) calStatus.textContent = 'Aktualisiert: ' + new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-  } catch (err) {
-    if (loading) loading.remove();
-    if (calStatus) calStatus.textContent = 'Kalender nicht verfügbar – bitte direkt anfragen.';
-    console.warn('PriceLabs Kalender:', err.message);
-  }
-
-  function buildCalendar(days) {
-    // Tage in Map für schnellen Zugriff
-    const dayMap = {};
-    days.forEach(d => { dayMap[d.date] = d; });
-
-    const wrap = document.createElement('div');
-    wrap.className = 'pcal-grid';
-
-    // 3 Monate ab heute
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    for (let m = 0; m < 3; m++) {
-      const ref      = new Date(today.getFullYear(), today.getMonth() + m, 1);
-      const year     = ref.getFullYear();
-      const month    = ref.getMonth();
-      const monthName = ref.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const firstDow    = (new Date(year, month, 1).getDay() + 6) % 7; // 0=Mo
-
-      const block = document.createElement('div');
-      block.className = 'pcal-month';
-
-      // Monatsname
-      const title = document.createElement('div');
-      title.className = 'pcal-month-title';
-      title.textContent = monthName;
-      block.appendChild(title);
-
-      // Wochentag-Header
-      const header = document.createElement('div');
-      header.className = 'pcal-row pcal-header';
-      ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => {
-        const c = document.createElement('div');
-        c.className = 'pcal-cell pcal-dow';
-        c.textContent = d;
-        header.appendChild(c);
-      });
-      block.appendChild(header);
-
-      // Tage
-      let row = document.createElement('div');
-      row.className = 'pcal-row';
-
-      // Leere Zellen vor dem 1.
-      for (let i = 0; i < firstDow; i++) {
-        const c = document.createElement('div');
-        c.className = 'pcal-cell pcal-empty';
-        row.appendChild(c);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        const info    = dayMap[dateStr];
-        const isPast  = new Date(year, month, day) < today;
-
-        const c = document.createElement('div');
-
-        const isToday = new Date(year, month, day).getTime() === today.getTime();
-
-        if (isPast && !isToday) {
-          c.className = 'pcal-cell pcal-past';
-          c.innerHTML = `<span class="pcal-day">${day}</span>`;
-        } else if (isToday) {
-          c.className = 'pcal-cell pcal-today';
-          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">${info?.price ? info.price + ' €' : ''}</span>`;
-        } else if (!info || !info.available) {
-          c.className = 'pcal-cell pcal-booked';
-          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">Belegt</span>`;
-        } else {
-          c.className = 'pcal-cell pcal-free';
-          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">${info.price ? info.price + ' €' : ''}</span>`;
-        }
-
-        row.appendChild(c);
-
-        // Neue Zeile nach Sonntag
-        const dow = (new Date(year, month, day).getDay() + 6) % 7;
-        if (dow === 6 && day < daysInMonth) {
-          block.appendChild(row);
-          row = document.createElement('div');
-          row.className = 'pcal-row';
-        }
-      }
-      block.appendChild(row);
-      wrap.appendChild(block);
-    }
-
-    return wrap;
-  }
-
-})();
 </script>
 
 </body>
