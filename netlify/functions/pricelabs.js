@@ -50,16 +50,6 @@ exports.handler = async function (event) {
     }
 
     const raw  = JSON.parse(text);
-
-    // ?debug=1 → rohe PriceLabs-Antwort (nur zum Debuggen)
-    if (event.queryStringParameters?.debug === '1') {
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(raw),
-      };
-    }
-
     const days = extractDays(raw);
 
     return {
@@ -93,8 +83,8 @@ function extractDays(raw) {
 
   return prices.map(d => ({
     date:      d.date,
-    price:     d.price ?? null,
-    available: !d.unbookable && d.booking_status !== 'booked' && d.booking_status !== 'blocked',
+    price:     d.user_price > 0 ? d.user_price : (d.price > 0 ? d.price : null),
+    available: d.occupancy === 0,
   }));
 }
 
