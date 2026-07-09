@@ -880,33 +880,7 @@
       .reveal { opacity: 1; transform: none; transition: none; }
     }
 
-    /* ═══════════════════════════════════════
-       PREISWIDGET – SPINNER
-    ═══════════════════════════════════════ */
-    .price-widget-UNUSED {
-      margin: 2.4rem 0 0;
-      background: var(--white);
-      border-radius: var(--r);
-      padding: 1.4rem 1.6rem 1.2rem;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--sky-pale);
-    }
-    .price-widget-title {
-      font-family: 'Nunito', sans-serif;
-      font-size: .82rem;
-      font-weight: 700;
-      color: var(--ocean);
-      text-align: center;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-    }
-    .price-loading {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: .88rem;
-      padding: .6rem 0;
-    }
+    /* Lade-Spinner für Kalender */
     .price-spinner {
       display: inline-block;
       width: 13px; height: 13px;
@@ -918,90 +892,6 @@
       margin-right: .4rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .pcal-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.2rem;
-    }
-    @media (max-width: 760px) {
-      .pcal-grid { grid-template-columns: 1fr; }
-    }
-    .pcal-month-title {
-      font-family: 'Nunito', sans-serif;
-      font-size: .85rem;
-      font-weight: 800;
-      color: var(--ocean);
-      text-align: center;
-      letter-spacing: .03em;
-      text-transform: uppercase;
-      margin-bottom: .5rem;
-    }
-    .pcal-row {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 2px;
-    }
-    .pcal-header { margin-bottom: 2px; }
-    .pcal-cell {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: .22rem .1rem;
-      border-radius: 5px;
-      min-height: 36px;
-      justify-content: center;
-      gap: 1px;
-    }
-    .pcal-dow {
-      font-size: .62rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      min-height: unset;
-      padding: .1rem;
-    }
-    .pcal-free {
-      background: #e8f5e9;
-      border: 1px solid #a5d6a7;
-    }
-    .pcal-booked {
-      background: #fce4ec;
-      border: 1px solid #ef9a9a;
-    }
-    .pcal-past {
-      background: transparent;
-      opacity: .3;
-    }
-    .pcal-empty { background: transparent; }
-    .pcal-today {
-      background: #fff9c4;
-      border: 1px solid #f9a825;
-    }
-    .pcal-day {
-      font-size: .72rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1;
-    }
-    .pcal-booked .pcal-day { color: #b71c1c; }
-    .pcal-free   .pcal-day { color: #1b5e20; }
-    .pcal-price {
-      font-size: .62rem;
-      font-weight: 800;
-      color: #1b5e20;
-      line-height: 1;
-    }
-    .pcal-booked .pcal-price {
-      font-size: .58rem;
-      font-weight: 500;
-      color: #b71c1c;
-    }
-    .price-hint {
-      margin: .8rem 0 0;
-      font-size: .74rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
   </style>
 </head>
 <body>
