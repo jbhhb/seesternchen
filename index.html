@@ -915,39 +915,75 @@
       margin-right: .4rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .price-months {
+    .pcal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+    @media (max-width: 760px) {
+      .pcal-grid { grid-template-columns: 1fr; }
+    }
+    .pcal-month-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: .85rem;
+      font-weight: 800;
+      color: var(--ocean);
+      text-align: center;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-bottom: .5rem;
+    }
+    .pcal-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+    .pcal-header { margin-bottom: 2px; }
+    .pcal-cell {
       display: flex;
       flex-direction: column;
-      gap: .5rem;
-    }
-    .price-month {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: 1.2rem;
       align-items: center;
-      padding: .65rem 1rem;
-      background: var(--cream);
-      border-radius: 10px;
-      border: 1px solid rgba(91,175,214,.18);
+      padding: .22rem .1rem;
+      border-radius: 5px;
+      min-height: 36px;
+      justify-content: center;
+      gap: 1px;
     }
-    .pm-name {
+    .pcal-dow {
+      font-size: .62rem;
       font-weight: 700;
-      font-size: .92rem;
-      color: var(--text);
-    }
-    .pm-price {
-      font-weight: 800;
-      font-size: .92rem;
-      color: var(--ocean);
-    }
-    .pm-avail {
-      font-size: .82rem;
       color: var(--text-muted);
-      text-align: right;
+      text-transform: uppercase;
+      min-height: unset;
+      padding: .1rem;
     }
-    .pm-avail--booked {
-      color: var(--coral);
-      font-weight: 600;
+    .pcal-free {
+      background: var(--cream);
+      border: 1px solid rgba(91,175,214,.25);
+    }
+    .pcal-booked {
+      background: rgba(26,107,138,.06);
+    }
+    .pcal-past, .pcal-empty {
+      opacity: .25;
+    }
+    .pcal-day {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .pcal-booked .pcal-day { color: var(--text-muted); }
+    .pcal-price {
+      font-size: .62rem;
+      font-weight: 800;
+      color: var(--ocean);
+      line-height: 1;
+    }
+    .pcal-booked .pcal-price {
+      font-size: .58rem;
+      font-weight: 400;
+      color: var(--text-muted);
     }
     .price-hint {
       margin: .8rem 0 0;
@@ -1819,44 +1855,95 @@ if (anreise && abreise) {
     if (!days.length) throw new Error('Keine Preisdaten');
 
     loading.remove();
-    calendar.appendChild(buildMonthSummary(days));
+    calendar.appendChild(buildCalendar(days));
 
   } catch (err) {
     if (widget) widget.style.display = 'none';
     console.warn('PriceLabs Widget:', err.message);
   }
 
-  function buildMonthSummary(days) {
+  function buildCalendar(days) {
+    // Tage in Map für schnellen Zugriff
+    const dayMap = {};
+    days.forEach(d => { dayMap[d.date] = d; });
+
     const wrap = document.createElement('div');
-    wrap.className = 'price-months';
+    wrap.className = 'pcal-grid';
 
-    // Gruppiere nach Monat
-    const months = {};
-    days.forEach(day => {
-      const d   = new Date(day.date + 'T00:00:00');
-      const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;
-      if (!months[key]) months[key] = {
-        name:     d.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }),
-        free:     0,
-        minPrice: null,
-      };
-      if (day.available && day.price) {
-        months[key].free++;
-        if (!months[key].minPrice || day.price < months[key].minPrice)
-          months[key].minPrice = day.price;
+    // 3 Monate ab heute
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    for (let m = 0; m < 3; m++) {
+      const ref      = new Date(today.getFullYear(), today.getMonth() + m, 1);
+      const year     = ref.getFullYear();
+      const month    = ref.getMonth();
+      const monthName = ref.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDow    = (new Date(year, month, 1).getDay() + 6) % 7; // 0=Mo
+
+      const block = document.createElement('div');
+      block.className = 'pcal-month';
+
+      // Monatsname
+      const title = document.createElement('div');
+      title.className = 'pcal-month-title';
+      title.textContent = monthName;
+      block.appendChild(title);
+
+      // Wochentag-Header
+      const header = document.createElement('div');
+      header.className = 'pcal-row pcal-header';
+      ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => {
+        const c = document.createElement('div');
+        c.className = 'pcal-cell pcal-dow';
+        c.textContent = d;
+        header.appendChild(c);
+      });
+      block.appendChild(header);
+
+      // Tage
+      let row = document.createElement('div');
+      row.className = 'pcal-row';
+
+      // Leere Zellen vor dem 1.
+      for (let i = 0; i < firstDow; i++) {
+        const c = document.createElement('div');
+        c.className = 'pcal-cell pcal-empty';
+        row.appendChild(c);
       }
-    });
 
-    Object.values(months).forEach(m => {
-      const row   = document.createElement('div');
-      row.className = 'price-month';
-      const avail = m.free === 0
-        ? '<span class="pm-avail pm-avail--booked">ausgebucht</span>'
-        : `<span class="pm-avail">${m.free} Nächte frei</span>`;
-      const price = m.minPrice ? `<span class="pm-price">ab ${m.minPrice} €</span>` : '<span class="pm-price">-</span>';
-      row.innerHTML = `<span class="pm-name">${m.name}</span>${price}${avail}`;
-      wrap.appendChild(row);
-    });
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const info    = dayMap[dateStr];
+        const isPast  = new Date(year, month, day) < today;
+
+        const c = document.createElement('div');
+
+        if (isPast) {
+          c.className = 'pcal-cell pcal-past';
+          c.innerHTML = `<span class="pcal-day">${day}</span>`;
+        } else if (!info || !info.available) {
+          c.className = 'pcal-cell pcal-booked';
+          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">Belegt</span>`;
+        } else {
+          c.className = 'pcal-cell pcal-free';
+          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">${info.price ? info.price + ' €' : ''}</span>`;
+        }
+
+        row.appendChild(c);
+
+        // Neue Zeile nach Sonntag
+        const dow = (new Date(year, month, day).getDay() + 6) % 7;
+        if (dow === 6 && day < daysInMonth) {
+          block.appendChild(row);
+          row = document.createElement('div');
+          row.className = 'pcal-row';
+        }
+      }
+      block.appendChild(row);
+      wrap.appendChild(block);
+    }
 
     return wrap;
   }
