@@ -958,14 +958,21 @@
       padding: .1rem;
     }
     .pcal-free {
-      background: var(--cream);
-      border: 1px solid rgba(91,175,214,.25);
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
     }
     .pcal-booked {
-      background: rgba(26,107,138,.06);
+      background: #fce4ec;
+      border: 1px solid #ef9a9a;
     }
-    .pcal-past, .pcal-empty {
-      opacity: .25;
+    .pcal-past {
+      background: transparent;
+      opacity: .3;
+    }
+    .pcal-empty { background: transparent; }
+    .pcal-today {
+      background: #fff9c4;
+      border: 1px solid #f9a825;
     }
     .pcal-day {
       font-size: .72rem;
@@ -973,17 +980,18 @@
       color: var(--text);
       line-height: 1;
     }
-    .pcal-booked .pcal-day { color: var(--text-muted); }
+    .pcal-booked .pcal-day { color: #b71c1c; }
+    .pcal-free   .pcal-day { color: #1b5e20; }
     .pcal-price {
       font-size: .62rem;
       font-weight: 800;
-      color: var(--ocean);
+      color: #1b5e20;
       line-height: 1;
     }
     .pcal-booked .pcal-price {
       font-size: .58rem;
-      font-weight: 400;
-      color: var(--text-muted);
+      font-weight: 500;
+      color: #b71c1c;
     }
     .price-hint {
       margin: .8rem 0 0;
@@ -1430,16 +1438,18 @@
 <section id="kalender" aria-label="Belegungskalender">
   <div class="container">
     <div class="text-center reveal">
-      <span class="tag">Verfügbarkeit</span>
+      <span class="tag">Verfügbarkeit & Preise</span>
       <h2 class="section-title">Belegungskalender</h2>
-      <p class="section-sub section-sub--center">Echtzeit-Verfügbarkeit · automatisch synchronisiert mit AirBnB und Tourismusservice</p>
+      <p class="section-sub section-sub--center">Aktuelle Verfügbarkeit und Preise · dynamisch aus unserem Revenue-Management</p>
     </div>
     <div class="cal-legend">
       <div class="cal-legend-item"><div class="cal-legend-dot cal-legend-dot--free"></div> Frei</div>
       <div class="cal-legend-item"><div class="cal-legend-dot cal-legend-dot--booked"></div> Belegt</div>
       <div class="cal-legend-item"><div class="cal-legend-dot cal-legend-dot--today"></div> Heute</div>
     </div>
-    <div class="cal-months" id="calMonths"></div>
+    <div class="cal-months" id="calMonths">
+      <div class="pcal-loading" id="pcal-loading"><span class="price-spinner"></span> Wird geladen …</div>
+    </div>
     <p class="cal-status" id="calStatus"></p>
   </div>
 </section>
@@ -1460,17 +1470,6 @@
       <span class="tag">Buchung</span>
       <h2 class="section-title">So sichert ihr euch das <em>Seesternchen</em></h2>
       <p class="section-sub section-sub--center">Alle Kanäle sind kalendersynchronisiert – die Verfügbarkeit ist immer aktuell.</p>
-    </div>
-
-    <!-- PriceLabs Preiswidget -->
-    <div class="price-widget reveal" id="price-widget">
-      <p class="price-widget-title">Preise auf einen Blick · nächste 90 Tage</p>
-      <div class="price-calendar" id="price-calendar">
-        <div class="price-loading" id="price-loading">
-          <span class="price-spinner"></span> Preise werden geladen …
-        </div>
-      </div>
-      <p class="price-hint">Preise dynamisch – täglich aktuell aus unserem Revenue-Management</p>
     </div>
 
     <div class="booking-cards">
@@ -1841,11 +1840,11 @@ if (anreise && abreise) {
   });
 })();
 
-// ── PriceLabs Preiswidget ─────────────────────────────────────────────────────
+// ── PriceLabs Kalender ────────────────────────────────────────────────────────
 (async function () {
-  const widget   = document.getElementById('price-widget');
-  const calendar = document.getElementById('price-calendar');
-  const loading  = document.getElementById('price-loading');
+  const calMonths = document.getElementById('calMonths');
+  const calStatus = document.getElementById('calStatus');
+  const loading   = document.getElementById('pcal-loading');
 
   try {
     const resp = await fetch('/.netlify/functions/pricelabs');
@@ -1854,12 +1853,14 @@ if (anreise && abreise) {
     const days = data.days || [];
     if (!days.length) throw new Error('Keine Preisdaten');
 
-    loading.remove();
-    calendar.appendChild(buildCalendar(days));
+    if (loading) loading.remove();
+    calMonths.appendChild(buildCalendar(days));
+    if (calStatus) calStatus.textContent = 'Aktualisiert: ' + new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   } catch (err) {
-    if (widget) widget.style.display = 'none';
-    console.warn('PriceLabs Widget:', err.message);
+    if (loading) loading.remove();
+    if (calStatus) calStatus.textContent = 'Kalender nicht verfügbar – bitte direkt anfragen.';
+    console.warn('PriceLabs Kalender:', err.message);
   }
 
   function buildCalendar(days) {
@@ -1920,9 +1921,14 @@ if (anreise && abreise) {
 
         const c = document.createElement('div');
 
-        if (isPast) {
+        const isToday = new Date(year, month, day).getTime() === today.getTime();
+
+        if (isPast && !isToday) {
           c.className = 'pcal-cell pcal-past';
           c.innerHTML = `<span class="pcal-day">${day}</span>`;
+        } else if (isToday) {
+          c.className = 'pcal-cell pcal-today';
+          c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">${info?.price ? info.price + ' €' : ''}</span>`;
         } else if (!info || !info.available) {
           c.className = 'pcal-cell pcal-booked';
           c.innerHTML = `<span class="pcal-day">${day}</span><span class="pcal-price">Belegt</span>`;
