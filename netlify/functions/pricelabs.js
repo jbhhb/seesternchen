@@ -22,7 +22,7 @@ exports.handler = async function (event) {
   }
 
   const dateFrom = toISODate(new Date());
-  const dateTo   = toISODate(daysFromNow(90));
+  const dateTo   = toISODate(daysFromNow(365));
 
   const payload = {
     listings: [{ id: listingId, pms, dateFrom, dateTo, reason: false }]

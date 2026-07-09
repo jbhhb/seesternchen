@@ -606,16 +606,26 @@
     #testimonials .section-title { color: #fff; }
     #testimonials .section-title em { color: var(--sand); }
     #testimonials .section-sub { color: rgba(255,255,255,.68); }
-    .testi-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 1.4rem; margin-top: 2.8rem;
-    }
+    /* Testimonials Carousel */
+    .testi-outer { display: flex; align-items: center; gap: 1rem; margin-top: 2.8rem; }
+    .testi-track-wrap { flex: 1; min-width: 0; overflow: hidden; }
+    .testi-track { display: flex; gap: 1.4rem; transition: transform .4s ease; }
     .testi-card {
+      flex-shrink: 0;
       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
       border-radius: var(--r); padding: 1.6rem;
-      transition: background .3s, transform .3s;
+      transition: background .3s;
     }
-    .testi-card:hover { background: rgba(255,255,255,.13); transform: translateY(-3px); }
+    .testi-card:hover { background: rgba(255,255,255,.13); }
+    .testi-nav {
+      flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: #fff; font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; line-height: 1;
+    }
+    .testi-nav:hover { background: rgba(255,255,255,.28); }
+    .testi-nav:disabled { opacity: .25; cursor: default; }
     .stars { display: flex; gap: .2rem; margin-bottom: .8rem; }
     .star { width: 14px; height: 14px; fill: var(--sand-warm); }
     .testi-text { font-size: .9rem; color: rgba(255,255,255,.83); line-height: 1.7; font-style: italic; margin-bottom: 1.3rem; }
@@ -630,8 +640,6 @@
     .t-av-3 { background: rgba(240,217,168,.8); }
     .t-name { font-weight: 700; font-size: .87rem; color: #fff; }
     .t-meta { font-size: .74rem; color: rgba(255,255,255,.48); }
-    @media (max-width: 900px) { .testi-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 600px) { .testi-grid { grid-template-columns: 1fr; } }
 
     /* ═══════════════════════════════════════
        BELEGUNGSKALENDER
@@ -681,6 +689,7 @@
     .cal-day--booked { background: #f8d7da; color: #721c24; }
     .cal-day--today  { background: var(--ocean); color: #fff; font-weight: 800; }
     .cal-day--past   { color: #ccc; }
+    .cal-day--none   { color: #ddd; }
     .cal-day-num     { font-weight: 700; line-height: 1.2; }
     .cal-day-price   { font-size: .58rem; font-weight: 600; line-height: 1; opacity: .85; }
     .cal-status {
@@ -1271,49 +1280,134 @@
       <h2 class="section-title" id="testi-title">Was Familien über das Seesternchen <em>sagen</em></h2>
       <p class="section-sub section-sub--center">Echte Bewertungen von echten Gästen.</p>
     </div>
-    <div class="testi-grid">
-      <div class="testi-card reveal d1">
-        <div class="stars" aria-label="5 von 5 Sternen">
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">„Die Wohnung ist liebevoll maritim dekoriert, blitzsauber und die Kommunikation mit dem Gastgeber war erste Klasse. Wir haben uns sehr wohl gefühlt und kommen gerne wieder!"</p>
-        <div class="testi-author">
-          <div class="t-av t-av-1" aria-hidden="true">C</div>
-          <div><div class="t-name">Christoph</div><div class="t-meta">AirBnB-Gast · Mai 2026</div></div>
+    <div class="testi-outer">
+      <button class="testi-nav" id="testiPrev" aria-label="Vorherige Bewertungen">‹</button>
+      <div class="testi-track-wrap">
+        <div class="testi-track" id="testiTrack">
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Sehr schöne, ruhige und gemütliche Wohnung im Ferienpark mit allem, was man benötigt – allein oder mit Kindern. Die Organisation ist top! Der Strand, Restaurants und die Innenstadt sind mit Fahrrädern sehr gut erreichbar."</p>
+            <div class="testi-author">
+              <div class="t-av t-av-1" aria-hidden="true">D</div>
+              <div><div class="t-name">Dimitri</div><div class="t-meta">AirBnB-Gast · Juli 2026</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Der Aufenthalt in Jörns Wohnung war super und unkompliziert. In der Küche ist alles vorhanden was man braucht und die Schlafräume sind super geeignet für 2 Erwachsene und 2 Kinder."</p>
+            <div class="testi-author">
+              <div class="t-av t-av-2" aria-hidden="true">J</div>
+              <div><div class="t-name">Julia</div><div class="t-meta">AirBnB-Gast · Juli 2026</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Wir waren rundum zufrieden!! Von der ersten Kommunikation bis zur Abreise haben wir uns sehr wohl gefühlt!"</p>
+            <div class="testi-author">
+              <div class="t-av t-av-3" aria-hidden="true">S</div>
+              <div><div class="t-name">Stefanie</div><div class="t-meta">AirBnB-Gast · Juni 2026</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Die Wohnung ist liebevoll maritim dekoriert und blitzsauber. Die Lage ist super und die Kommunikation mit Jörn vom ersten Moment an 1a. Wir können Jörn und seine Wohnung nur wärmstens weiterempfehlen."</p>
+            <div class="testi-author">
+              <div class="t-av t-av-1" aria-hidden="true">C</div>
+              <div><div class="t-name">Christoph</div><div class="t-meta">AirBnB-Gast · April 2026</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Die Unterkunft von Jörn ist einfach top! Der Wohlfühlfaktor war sofort gegeben. Die neue Küche ist super ausgestattet. Die Kommunikation war ausgezeichnet – immer freundlich, schnell und zuvorkommend. Ich würde jederzeit wiederkommen!"</p>
+            <div class="testi-author">
+              <div class="t-av t-av-2" aria-hidden="true">M</div>
+              <div><div class="t-name">Melanie</div><div class="t-meta">AirBnB-Gast · September 2025</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Die Lage ist super, direkt am Binnensee – alles fußläufig zu erreichen. Die Wohnung ist liebevoll eingerichtet. Beim nächsten Trip nach Heiligenhafen kommen wir bestimmt wieder!"</p>
+            <div class="testi-author">
+              <div class="t-av t-av-3" aria-hidden="true">JC</div>
+              <div><div class="t-name">Jan Christoph</div><div class="t-meta">AirBnB-Gast · Juli 2025</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Die Wohnung ist genauso gemütlich wie auf den Bildern. Wir haben uns direkt sehr wohl gefühlt. Es war wie nach Hause kommen. Einfach wunderbar."</p>
+            <div class="testi-author">
+              <div class="t-av t-av-1" aria-hidden="true">VV</div>
+              <div><div class="t-name">Viviane-Vanessa</div><div class="t-meta">AirBnB-Gast · Juni 2025</div></div>
+            </div>
+          </div>
+
+          <div class="testi-card">
+            <div class="stars" aria-label="5 von 5 Sternen">
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="testi-text">„Unser Kurzurlaub war sehr schön, nicht zuletzt durch Jörns Unterkunft. Es war alles da, was man braucht. Jörn ermöglichte uns auf Nachfrage spontan einen früheren Check-in. Wir würden wiederkommen!"</p>
+            <div class="testi-author">
+              <div class="t-av t-av-2" aria-hidden="true">J</div>
+              <div><div class="t-name">Janice</div><div class="t-meta">AirBnB-Gast · Oktober 2024</div></div>
+            </div>
+          </div>
+
         </div>
       </div>
-      <div class="testi-card reveal d2">
-        <div class="stars" aria-label="5 von 5 Sternen">
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">„Die Lage war super, direkt am Binnensee. Die Wohnung war liebevoll eingerichtet und wir haben an nichts fehlen lassen. Ein toller Urlaub für die ganze Familie!"</p>
-        <div class="testi-author">
-          <div class="t-av t-av-2" aria-hidden="true">JC</div>
-          <div><div class="t-name">Jan Christoph</div><div class="t-meta">AirBnB-Gast · Juli 2025</div></div>
-        </div>
-      </div>
-      <div class="testi-card reveal d3">
-        <div class="stars" aria-label="5 von 5 Sternen">
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">„Das Highlight im Ostsee-Ferienpark! Modern, gepflegt und maritim eingerichtet. Unschlagbares Preis-Leistungsverhältnis – wir kommen definitiv wieder!"</p>
-        <div class="testi-author">
-          <div class="t-av t-av-3" aria-hidden="true">E</div>
-          <div><div class="t-name">Enrico</div><div class="t-meta">AirBnB-Gast · Juni 2018</div></div>
-        </div>
-      </div>
+      <button class="testi-nav" id="testiNext" aria-label="Nächste Bewertungen">›</button>
     </div>
   </div>
 </section>
@@ -1660,7 +1754,8 @@ if (anreise && abreise) {
         let cls = 'cal-day';
         if (d.getTime() === todayD.getTime()) cls += ' cal-day--today';
         else if (d < todayD)                  cls += ' cal-day--past';
-        else if (!info || !info.available)    cls += ' cal-day--booked';
+        else if (!info)                       cls += ' cal-day--none';
+        else if (!info.available)             cls += ' cal-day--booked';
         else                                  cls += ' cal-day--free';
 
         cell.className = cls;
@@ -1702,6 +1797,40 @@ if (anreise && abreise) {
     setStatus('Kalender nicht verfügbar – bitte direkt anfragen.', 'error');
     console.warn('PriceLabs Kalender:', err.message);
   }
+})();
+
+// ── Testimonials Carousel ─────────────────────────────────
+(function () {
+  const wrap  = document.querySelector('.testi-track-wrap');
+  const track = document.getElementById('testiTrack');
+  const btnP  = document.getElementById('testiPrev');
+  const btnN  = document.getElementById('testiNext');
+  if (!track || !wrap) return;
+
+  const cards = Array.from(track.querySelectorAll('.testi-card'));
+  const GAP   = 22; // 1.4rem ≈ 22px
+  let idx = 0;
+
+  function visible() {
+    return window.innerWidth >= 900 ? 3 : window.innerWidth >= 600 ? 2 : 1;
+  }
+
+  function update() {
+    const v     = visible();
+    const wrapW = wrap.offsetWidth;
+    const cardW = (wrapW - (v - 1) * GAP) / v;
+    cards.forEach(c => { c.style.width = cardW + 'px'; });
+    const max = Math.max(0, cards.length - v);
+    idx = Math.max(0, Math.min(idx, max));
+    track.style.transform = `translateX(-${idx * (cardW + GAP)}px)`;
+    if (btnP) btnP.disabled = idx === 0;
+    if (btnN) btnN.disabled = idx >= max;
+  }
+
+  if (btnP) btnP.addEventListener('click', () => { idx--; update(); });
+  if (btnN) btnN.addEventListener('click', () => { idx++; update(); });
+  window.addEventListener('resize', update);
+  update();
 })();
 
 // ── Lightbox ──────────────────────────────────────────────
