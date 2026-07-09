@@ -49,17 +49,7 @@ exports.handler = async function (event) {
       };
     }
 
-    const raw = JSON.parse(text);
-
-    // ?debug=1 → rohe PriceLabs-Antwort (nur zum Debuggen, danach entfernen)
-    if (event.queryStringParameters?.debug === '1') {
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(raw),
-      };
-    }
-
+    const raw  = JSON.parse(text);
     const days = extractDays(raw);
 
     return {

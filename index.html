@@ -884,25 +884,25 @@
       margin: 2.4rem 0 0;
       background: var(--white);
       border-radius: var(--r);
-      padding: 1.6rem 1.6rem 1.2rem;
+      padding: 1.4rem 1.6rem 1.2rem;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--sky-pale);
     }
     .price-widget-title {
       font-family: 'Nunito', sans-serif;
-      font-size: .9rem;
+      font-size: .82rem;
       font-weight: 700;
       color: var(--ocean);
       text-align: center;
-      letter-spacing: .03em;
+      letter-spacing: .05em;
       text-transform: uppercase;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
     }
     .price-loading {
       text-align: center;
       color: var(--text-muted);
       font-size: .88rem;
-      padding: 1rem 0;
+      padding: .6rem 0;
     }
     .price-spinner {
       display: inline-block;
@@ -915,62 +915,43 @@
       margin-right: .4rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .price-weeks {
+    .price-months {
       display: flex;
       flex-direction: column;
-      gap: .35rem;
-      overflow-x: auto;
-      padding-bottom: .4rem;
+      gap: .5rem;
     }
-    .price-week {
+    .price-month {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: .25rem;
-      min-width: 500px;
-    }
-    .price-day {
-      display: flex;
-      flex-direction: column;
+      grid-template-columns: 1fr auto auto;
+      gap: 1.2rem;
       align-items: center;
-      padding: .4rem .15rem;
-      border-radius: 8px;
-      gap: .1rem;
-    }
-    .price-day--free {
+      padding: .65rem 1rem;
       background: var(--cream);
-      border: 1px solid rgba(91,175,214,.3);
+      border-radius: 10px;
+      border: 1px solid rgba(91,175,214,.18);
     }
-    .price-day--booked {
-      background: transparent;
-      opacity: .45;
-    }
-    .price-day--empty {
-      background: transparent;
-    }
-    .pday-dow {
-      font-size: .6rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: var(--text-muted);
-    }
-    .pday-date {
-      font-size: .72rem;
-      font-weight: 600;
+    .pm-name {
+      font-weight: 700;
+      font-size: .92rem;
       color: var(--text);
     }
-    .pday-price {
-      font-size: .78rem;
+    .pm-price {
       font-weight: 800;
+      font-size: .92rem;
       color: var(--ocean);
     }
-    .price-day--booked .pday-price {
-      font-weight: 400;
-      font-size: .68rem;
+    .pm-avail {
+      font-size: .82rem;
       color: var(--text-muted);
+      text-align: right;
+    }
+    .pm-avail--booked {
+      color: var(--coral);
+      font-weight: 600;
     }
     .price-hint {
-      margin: .9rem 0 0;
-      font-size: .75rem;
+      margin: .8rem 0 0;
+      font-size: .74rem;
       color: var(--text-muted);
       text-align: center;
     }
@@ -1838,40 +1819,71 @@ if (anreise && abreise) {
     if (!days.length) throw new Error('Keine Preisdaten');
 
     loading.remove();
-    calendar.appendChild(buildCalendar(days));
+    calendar.appendChild(buildMonthSummary(days));
 
   } catch (err) {
-    // Bei Fehler Widget lautlos ausblenden – Seite bleibt voll funktionsfähig
     if (widget) widget.style.display = 'none';
     console.warn('PriceLabs Widget:', err.message);
   }
 
+  function buildMonthSummary(days) {
+    const wrap = document.createElement('div');
+    wrap.className = 'price-months';
+
+    // Gruppiere nach Monat
+    const months = {};
+    days.forEach(day => {
+      const d   = new Date(day.date + 'T00:00:00');
+      const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;
+      if (!months[key]) months[key] = {
+        name:     d.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }),
+        free:     0,
+        minPrice: null,
+      };
+      if (day.available && day.price) {
+        months[key].free++;
+        if (!months[key].minPrice || day.price < months[key].minPrice)
+          months[key].minPrice = day.price;
+      }
+    });
+
+    Object.values(months).forEach(m => {
+      const row   = document.createElement('div');
+      row.className = 'price-month';
+      const avail = m.free === 0
+        ? '<span class="pm-avail pm-avail--booked">ausgebucht</span>'
+        : `<span class="pm-avail">${m.free} Nächte frei</span>`;
+      const price = m.minPrice ? `<span class="pm-price">ab ${m.minPrice} €</span>` : '<span class="pm-price">-</span>';
+      row.innerHTML = `<span class="pm-name">${m.name}</span>${price}${avail}`;
+      wrap.appendChild(row);
+    });
+
+    return wrap;
+  }
+
+  // Legacy – wird nicht mehr genutzt, bleibt als Fallback
   function buildCalendar(days) {
     const wrap = document.createElement('div');
     wrap.className = 'price-weeks';
+    return wrap;
+  }
 
-    toWeeks(days).forEach(week => {
-      const row = document.createElement('div');
-      row.className = 'price-week';
-
-      week.forEach(day => {
-        const cell = document.createElement('div');
-        if (!day || day.empty) {
-          cell.className = 'price-day price-day--empty';
-          row.appendChild(cell);
-          return;
-        }
-        const d   = new Date(day.date + 'T00:00:00');
-        const dow = d.toLocaleDateString('de-DE', { weekday: 'short' });
-        const dom = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-
-        if (!day.available || day.price === null) {
-          cell.className = 'price-day price-day--booked';
-          cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">Belegt</span>`;
-        } else {
-          cell.className = 'price-day price-day--free';
-          cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">${day.price} €</span>`;
-        }
+  function _unused(day) {
+    const cell = document.createElement('div');
+    if (!day || day.empty) {
+      cell.className = 'price-day price-day--empty';
+      return;
+    }
+    const d   = new Date(day.date + 'T00:00:00');
+    const dow = d.toLocaleDateString('de-DE', { weekday: 'short' });
+    const dom = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+    if (!day.available || day.price === null) {
+      cell.className = 'price-day price-day--booked';
+      cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">Belegt</span>`;
+    } else {
+      cell.className = 'price-day price-day--free';
+      cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">${day.price} €</span>`;
+    }
         row.appendChild(cell);
       });
 
