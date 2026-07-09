@@ -24,9 +24,9 @@ exports.handler = async function (event) {
   const dateFrom = toISODate(new Date());
   const dateTo   = toISODate(daysFromNow(90));
 
-  const payload = [
-    { id: listingId, pms, dateFrom, dateTo, reason: false }
-  ];
+  const payload = {
+    listings: [{ id: listingId, pms, dateFrom, dateTo, reason: false }]
+  };
 
   try {
     const resp = await fetch('https://api.pricelabs.co/v1/listing_prices', {
