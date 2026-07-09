@@ -1861,54 +1861,6 @@ if (anreise && abreise) {
     return wrap;
   }
 
-  // Legacy – wird nicht mehr genutzt, bleibt als Fallback
-  function buildCalendar(days) {
-    const wrap = document.createElement('div');
-    wrap.className = 'price-weeks';
-    return wrap;
-  }
-
-  function _unused(day) {
-    const cell = document.createElement('div');
-    if (!day || day.empty) {
-      cell.className = 'price-day price-day--empty';
-      return;
-    }
-    const d   = new Date(day.date + 'T00:00:00');
-    const dow = d.toLocaleDateString('de-DE', { weekday: 'short' });
-    const dom = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-    if (!day.available || day.price === null) {
-      cell.className = 'price-day price-day--booked';
-      cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">Belegt</span>`;
-    } else {
-      cell.className = 'price-day price-day--free';
-      cell.innerHTML = `<span class="pday-dow">${dow}</span><span class="pday-date">${dom}</span><span class="pday-price">${day.price} €</span>`;
-    }
-        row.appendChild(cell);
-      });
-
-      wrap.appendChild(row);
-    });
-
-    return wrap;
-  }
-
-  function toWeeks(days) {
-    const weeks = [];
-    let week    = [];
-    const firstDow = (new Date(days[0].date + 'T00:00:00').getDay() + 6) % 7; // 0=Mo
-    for (let i = 0; i < firstDow; i++) week.push({ empty: true });
-
-    days.forEach(day => {
-      if (week.length === 7) { weeks.push(week); week = []; }
-      week.push(day);
-    });
-    if (week.length) {
-      while (week.length < 7) week.push({ empty: true });
-      weeks.push(week);
-    }
-    return weeks;
-  }
 })();
 </script>
 
