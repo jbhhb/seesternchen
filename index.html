@@ -673,13 +673,16 @@
       color: var(--text-muted); padding: 3px 0; letter-spacing: .04em;
     }
     .cal-day {
-      text-align: center; padding: 5px 2px;
+      text-align: center; padding: 4px 2px;
       font-size: .8rem; border-radius: 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
     }
     .cal-day--free   { background: #d4edda; color: #155724; }
-    .cal-day--booked { background: #f8d7da; color: #721c24; text-decoration: line-through; }
+    .cal-day--booked { background: #f8d7da; color: #721c24; }
     .cal-day--today  { background: var(--ocean); color: #fff; font-weight: 800; }
     .cal-day--past   { color: #ccc; }
+    .cal-day-num     { font-weight: 700; line-height: 1.2; }
+    .cal-day-price   { font-size: .58rem; font-weight: 600; line-height: 1; opacity: .85; }
     .cal-status {
       text-align: center; font-size: .8rem; color: var(--text-muted);
       margin-top: 1.2rem; min-height: 20px;
@@ -1696,84 +1699,14 @@ if (anreise && abreise) {
   });
 }
 
-// ── Belegungskalender ─────────────────────────────────────
-(function() {
-  const MONTHS_AHEAD = 4;
-  const ICAL_URLS = [
-    '/.netlify/functions/ical?url=airbnb',
-    '/.netlify/functions/ical?url=hvb'
-  ];
+// ── Belegungskalender (PriceLabs) ─────────────────────────────────────────────
+// Ersetzt den alten iCal-Kalender – Daten kommen jetzt direkt aus PriceLabs
+// (Verfügbarkeit + Preise in einem API-Call, kein iCal-Proxy mehr nötig)
+(async function () {
   const DOW  = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   const MNAM = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-
-  let bookedDates = new Set();
-  let startOffset = 0;
+  const MONTHS_AHEAD = 3;
   const todayD = new Date(); todayD.setHours(0,0,0,0);
-
-  function toKey(d) {
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  }
-  function parseYmd(s) {
-    return new Date(parseInt(s.slice(0,4)), parseInt(s.slice(4,6))-1, parseInt(s.slice(6,8)));
-  }
-  function parseIcal(text) {
-    const set = new Set();
-    const events = text.split('BEGIN:VEVENT');
-    for (let i = 1; i < events.length; i++) {
-      const b = events[i];
-      const sm = b.match(/DTSTART(?:;[^:]+)?:(\d{8})/);
-      const em = b.match(/DTEND(?:;[^:]+)?:(\d{8})/);
-      if (!sm || !em) continue;
-      for (let d = new Date(parseYmd(sm[1])); d < parseYmd(em[1]); d.setDate(d.getDate()+1)) set.add(toKey(new Date(d)));
-    }
-    return set;
-  }
-
-  function renderCalendar() {
-    const c = document.getElementById('calMonths');
-    if (!c) return;
-    c.innerHTML = '';
-    for (let m = 0; m < MONTHS_AHEAD; m++) {
-      const ref   = new Date(todayD.getFullYear(), todayD.getMonth() + startOffset + m, 1);
-      const year  = ref.getFullYear();
-      const month = ref.getMonth();
-      const wrap  = document.createElement('div'); wrap.className = 'cal-month';
-      const hdr   = document.createElement('div'); hdr.className = 'cal-month-header';
-      const name  = document.createElement('span'); name.className = 'cal-month-name'; name.textContent = MNAM[month]+' '+year;
-      hdr.appendChild(name);
-      if (m === 0) {
-        const pb = document.createElement('button'); pb.className='cal-nav-btn'; pb.textContent='‹'; pb.title='Vorheriger Monat';
-        pb.disabled = startOffset <= 0;
-        pb.onclick = () => { startOffset--; renderCalendar(); };
-        hdr.prepend(pb);
-      }
-      if (m === MONTHS_AHEAD-1) {
-        const nb = document.createElement('button'); nb.className='cal-nav-btn'; nb.textContent='›'; nb.title='Nächster Monat';
-        nb.onclick = () => { startOffset++; renderCalendar(); };
-        hdr.appendChild(nb);
-      }
-      wrap.appendChild(hdr);
-      const grid = document.createElement('div'); grid.className = 'cal-grid';
-      DOW.forEach(d => { const lbl = document.createElement('div'); lbl.className='cal-dow'; lbl.textContent=d; grid.appendChild(lbl); });
-      let dow = (new Date(year, month, 1).getDay() + 6) % 7;
-      for (let e = 0; e < dow; e++) { const empty = document.createElement('div'); empty.className='cal-day'; grid.appendChild(empty); }
-      const dim = new Date(year, month+1, 0).getDate();
-      for (let day = 1; day <= dim; day++) {
-        const cell = document.createElement('div');
-        const d = new Date(year, month, day);
-        const key = toKey(d);
-        let cls = 'cal-day';
-        if (d.getTime() === todayD.getTime()) cls += ' cal-day--today';
-        else if (d < todayD)                  cls += ' cal-day--past';
-        else if (bookedDates.has(key))         cls += ' cal-day--booked';
-        else                                   cls += ' cal-day--free';
-        cell.className = cls; cell.textContent = day;
-        grid.appendChild(cell);
-      }
-      wrap.appendChild(grid);
-      c.appendChild(wrap);
-    }
-  }
 
   function setStatus(msg, cls) {
     const el = document.getElementById('calStatus');
@@ -1782,21 +1715,103 @@ if (anreise && abreise) {
     el.className = 'cal-status' + (cls ? ' cal-status--'+cls : '');
   }
 
-  async function loadCalendars() {
-    setStatus('Verfügbarkeit wird geladen …', 'loading');
-    renderCalendar();
-    let loaded = 0, errors = 0;
-    await Promise.allSettled(ICAL_URLS.map(url =>
-      fetch(url).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
-        .then(t => { parseIcal(t).forEach(d => bookedDates.add(d)); loaded++; renderCalendar(); })
-        .catch(() => errors++)
-    ));
-    if (loaded === 0)      setStatus('Kalender nicht verfügbar – bitte direkt anfragen.', 'error');
-    else if (errors > 0)   setStatus('Kalender teilweise geladen. Für verbindliche Verfügbarkeit bitte anfragen.', '');
-    else setStatus('Aktualisiert: '+new Date().toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}), '');
+  function toKey(d) {
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
 
-  loadCalendars();
+  function render(dayMap, startOffset) {
+    const c = document.getElementById('calMonths');
+    if (!c) return;
+    c.innerHTML = '';
+    for (let m = 0; m < MONTHS_AHEAD; m++) {
+      const ref   = new Date(todayD.getFullYear(), todayD.getMonth() + startOffset + m, 1);
+      const year  = ref.getFullYear();
+      const month = ref.getMonth();
+      const wrap  = document.createElement('div'); wrap.className = 'cal-month';
+
+      // Header mit Navigation
+      const hdr  = document.createElement('div'); hdr.className = 'cal-month-header';
+      const name = document.createElement('span'); name.className = 'cal-month-name';
+      name.textContent = MNAM[month] + ' ' + year;
+      hdr.appendChild(name);
+      if (m === 0) {
+        const pb = document.createElement('button'); pb.className = 'cal-nav-btn'; pb.textContent = '‹';
+        pb.disabled = startOffset <= 0;
+        pb.onclick = () => render(dayMap, startOffset - 1);
+        hdr.prepend(pb);
+      }
+      if (m === MONTHS_AHEAD - 1) {
+        const nb = document.createElement('button'); nb.className = 'cal-nav-btn'; nb.textContent = '›';
+        nb.onclick = () => render(dayMap, startOffset + 1);
+        hdr.appendChild(nb);
+      }
+      wrap.appendChild(hdr);
+
+      // Wochentage
+      const grid = document.createElement('div'); grid.className = 'cal-grid';
+      DOW.forEach(d => {
+        const lbl = document.createElement('div'); lbl.className = 'cal-dow'; lbl.textContent = d; grid.appendChild(lbl);
+      });
+
+      // Leerzellen
+      const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
+      for (let e = 0; e < firstDow; e++) {
+        const empty = document.createElement('div'); empty.className = 'cal-day'; grid.appendChild(empty);
+      }
+
+      // Tage
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d    = new Date(year, month, day);
+        const key  = toKey(d);
+        const info = dayMap[key];
+        const cell = document.createElement('div');
+
+        let cls = 'cal-day';
+        if (d.getTime() === todayD.getTime()) cls += ' cal-day--today';
+        else if (d < todayD)                  cls += ' cal-day--past';
+        else if (!info || !info.available)    cls += ' cal-day--booked';
+        else                                  cls += ' cal-day--free';
+
+        cell.className = cls;
+
+        // Tageszahl + Preis
+        const numEl = document.createElement('span'); numEl.className = 'cal-day-num'; numEl.textContent = day;
+        cell.appendChild(numEl);
+        if (info && info.available && info.price && d >= todayD) {
+          const priceEl = document.createElement('span'); priceEl.className = 'cal-day-price';
+          priceEl.textContent = info.price + ' €';
+          cell.appendChild(priceEl);
+        }
+        grid.appendChild(cell);
+      }
+      wrap.appendChild(grid);
+      c.appendChild(wrap);
+    }
+  }
+
+  setStatus('Wird geladen …', 'loading');
+
+  try {
+    const resp = await fetch('/.netlify/functions/pricelabs');
+    if (!resp.ok) throw new Error(`Status ${resp.status}`);
+    const data = await resp.json();
+    const days = data.days || [];
+    if (!days.length) throw new Error('Keine Daten');
+
+    const dayMap = {};
+    days.forEach(d => { dayMap[d.date] = d; });
+
+    const loading = document.getElementById('pcal-loading');
+    if (loading) loading.remove();
+
+    render(dayMap, 0);
+    setStatus('Aktualisiert: ' + new Date().toLocaleString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }), '');
+
+  } catch (err) {
+    setStatus('Kalender nicht verfügbar – bitte direkt anfragen.', 'error');
+    console.warn('PriceLabs Kalender:', err.message);
+  }
 })();
 
 // ── Lightbox ──────────────────────────────────────────────
