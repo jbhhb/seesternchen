@@ -43,10 +43,10 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 # ── Weiterleitungen ─────────────────────────
-# non-www → www (kanonische URL ist www.fewo-seesternchen.de)
+# www → non-www
 [[redirects]]
-  from   = "https://fewo-seesternchen.de/*"
-  to     = "https://www.fewo-seesternchen.de/:splat"
+  from   = "https://www.fewo-seesternchen.de/*"
+  to     = "https://fewo-seesternchen.de/:splat"
   status = 301
   force  = true
 
