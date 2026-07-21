@@ -56,6 +56,19 @@
   to     = "/danke.html"
   status = 200
 
+# Impressum: ohne und mit .html → kanonische Verzeichnis-URL
+[[redirects]]
+  from   = "/impressum"
+  to     = "/impressum/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/impressum.html"
+  to     = "/impressum/"
+  status = 301
+  force  = true
+
 # Catch-All: 404-Seite
 [[redirects]]
   from   = "/*"

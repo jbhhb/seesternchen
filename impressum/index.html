@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Reise-Tipps & Heiligenhafen-Blog · Ferienwohnung Seesternchen</title>
-  <meta name="description" content="Tipps für Familienurlaub in Heiligenhafen an der Ostsee: Ausflugsziele, Aktivitäten mit Kindern, Geheimtipps und Reiseinfos direkt vom Vermieter." />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://fewo-seesternchen.de/blog/" />
+  <title>Impressum & Datenschutz · Ferienwohnung Seesternchen</title>
+  <meta name="description" content="Impressum und Datenschutzerklärung der Ferienwohnung Seesternchen in Heiligenhafen." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://fewo-seesternchen.de/impressum/" />
 
   <meta property="og:type"        content="website" />
-  <meta property="og:url"         content="https://fewo-seesternchen.de/blog/" />
-  <meta property="og:title"       content="Heiligenhafen-Blog · Tipps für Familien" />
-  <meta property="og:description" content="Ausflugsziele, Aktivitäten mit Kindern, Geheimtipps – direkt vom Vermieter der Ferienwohnung Seesternchen." />
+  <meta property="og:url"         content="https://fewo-seesternchen.de/impressum/" />
+  <meta property="og:title"       content="Impressum & Datenschutz · Ferienwohnung Seesternchen" />
+  <meta property="og:description" content="Impressum und Datenschutzerklärung der Ferienwohnung Seesternchen in Heiligenhafen." />
   <meta property="og:image"       content="https://fewo-seesternchen.de/img/hero-binnensee.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -122,75 +122,30 @@
     .container { max-width: 1100px; margin: 0 auto; }
     section { padding: 4rem 2rem; }
 
-    /* ── BLOG GRID ── */
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem; margin-top: 2.5rem;
-    }
-    .blog-card {
+    /* ── LEGAL CONTENT ── */
+    .legal-card {
       background: var(--white); border-radius: var(--r);
       box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      transition: transform .25s, box-shadow .25s;
-      display: flex; flex-direction: column;
+      padding: 2.8rem 3rem; max-width: 780px; margin: 0 auto;
     }
-    .blog-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
-    .blog-card__img {
-      width: 100%; height: 200px; object-fit: cover;
-      background: linear-gradient(135deg, var(--sky-pale), var(--sand));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3.5rem; flex-shrink: 0;
-    }
-    .blog-card__body { padding: 1.6rem; flex: 1; display: flex; flex-direction: column; }
-    .blog-card__cat {
-      font-size: .72rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: .12em; color: var(--ocean);
-      background: rgba(91,175,214,.1);
-      display: inline-block; padding: .2rem .65rem; border-radius: 50px;
-      margin-bottom: .7rem;
-    }
-    .blog-card__title {
+    .legal-card + .legal-card { margin-top: 2.5rem; }
+    .legal-card h2 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.2rem; font-weight: 700; line-height: 1.3;
-      color: var(--text); margin-bottom: .6rem;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--ocean); margin-bottom: 1.4rem;
     }
-    .blog-card__excerpt { font-size: .88rem; color: var(--text-muted); line-height: 1.65; flex: 1; }
-    .blog-card__meta {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-top: 1.2rem; padding-top: 1rem;
-      border-top: 1px solid rgba(91,175,214,.12);
-      font-size: .78rem; color: var(--text-muted);
-    }
-    .blog-card__link {
-      font-size: .85rem; font-weight: 700; color: var(--ocean);
-      display: flex; align-items: center; gap: .3rem;
-      transition: gap .2s;
-    }
-    .blog-card:hover .blog-card__link { gap: .55rem; }
-
-    /* ── CTA BANNER ── */
-    .cta-banner {
-      background: linear-gradient(135deg, var(--ocean) 0%, var(--ocean-mid) 100%);
-      border-radius: var(--r); padding: 3rem 2.5rem;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 2rem; flex-wrap: wrap; margin-top: 3rem;
-      color: #fff;
-    }
-    .cta-banner h2 {
+    .legal-card h3 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.6rem; font-weight: 700; margin-bottom: .4rem;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text); margin: 1.8rem 0 .6rem;
     }
-    .cta-banner p { font-size: .93rem; color: rgba(255,255,255,.75); }
-    .btn-coral {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: var(--coral); color: #fff;
-      font-family: 'Nunito', sans-serif; font-size: .97rem; font-weight: 700;
-      padding: .9rem 2rem; border-radius: 50px; white-space: nowrap;
-      box-shadow: 0 4px 20px rgba(201,106,74,.4);
-      transition: all .28s ease;
-    }
-    .btn-coral:hover { background: var(--coral-light); transform: translateY(-2px); }
+    .legal-card h3:first-of-type { margin-top: 0; }
+    .legal-card p { font-size: .93rem; color: var(--text-muted); margin-bottom: .8rem; }
+    .legal-card ul { list-style: none; margin-bottom: .8rem; }
+    .legal-card li { font-size: .93rem; color: var(--text-muted); margin-bottom: .3rem; }
+    .legal-card a { color: var(--ocean); font-weight: 600; text-decoration: underline; text-decoration-color: rgba(26,107,138,.3); }
+    .legal-card a:hover { color: var(--coral); }
+    .legal-card strong { color: var(--text); }
 
     /* ── FOOTER ── */
     footer { background: var(--text); color: rgba(255,255,255,.55); padding: 3rem 2rem 2rem; }
@@ -222,7 +177,7 @@
     @media (max-width: 768px) {
       .foot-grid { grid-template-columns: 1fr; gap: 2rem; }
       .foot-bottom { flex-direction: column; text-align: center; }
-      .cta-banner { flex-direction: column; text-align: center; }
+      .legal-card { padding: 2rem 1.4rem; }
     }
   </style>
 </head>
@@ -242,7 +197,7 @@
     <li><a href="/">Startseite</a></li>
     <li><a href="/#features">Ausstattung</a></li>
     <li><a href="/#location">Lage</a></li>
-    <li><a href="/blog/" aria-current="page">Blog</a></li>
+    <li><a href="/blog/">Blog</a></li>
     <li><a href="/#kontakt" class="nav-cta">Direkt anfragen</a></li>
   </ul>
 </nav>
@@ -250,9 +205,9 @@
 <!-- HERO -->
 <header class="blog-hero">
   <div style="position:relative;z-index:1;">
-    <span class="tag">🌊 Reise-Tipps & Insider-Wissen</span>
-    <h1>Heiligenhafen entdecken –<br><em>Tipps vom Vermieter</em></h1>
-    <p>Ausflugsziele, Geheimtipps und alles was ihr für euren Familienurlaub an der Ostsee wissen müsst.</p>
+    <span class="tag">📄 Rechtliches</span>
+    <h1>Impressum &amp;<br><em>Datenschutz</em></h1>
+    <p>Pflichtangaben nach §5 TMG und Informationen zur Verarbeitung deiner Daten gemäß DSGVO.</p>
   </div>
 </header>
 <div class="hero-wave">
@@ -261,105 +216,61 @@
   </svg>
 </div>
 
-<!-- BLOG POSTS -->
+<!-- LEGAL CONTENT -->
 <section>
   <div class="container">
-    <div class="blog-grid">
 
-      <!-- Post 6 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🎫</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Kurtaxe & Tipps</span>
-          <h2 class="blog-card__title">Ostsee-Card Heiligenhafen: Lohnt sie sich wirklich?</h2>
-          <p class="blog-card__excerpt">Strandzugang, Stadtbus, Museum, Bücherei – was die Ostseecard in Heiligenhafen konkret bringt und wie viel du als Familie tatsächlich sparst. Ehrliche Rechnung vom Vermieter.</p>
-          <div class="blog-card__meta">
-            <span>Juni 2026 · 6 min Lesezeit</span>
-            <a href="/blog/ostseecard-heiligenhafen/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
+    <!-- Impressum -->
+    <div class="legal-card">
+      <h2>Impressum</h2>
 
-      <!-- Post 1 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🗺️</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Ausflugsziele</span>
-          <h2 class="blog-card__title">Ausflugsziele Heiligenhafen mit Kindern: 9 Tipps vom Vermieter</h2>
-          <p class="blog-card__excerpt">Seebrücke, Binnensee, Graswarder, Bernstein an der Steilküste, Fehmarn – alles was Familienurlaub in Heiligenhafen braucht. Insider-Tipps von jemandem, der die Gegend seit Kindheit kennt.</p>
-          <div class="blog-card__meta">
-            <span>Mai 2026 · 10 min Lesezeit</span>
-            <a href="/blog/ausflugsziele-heiligenhafen-kinder/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
+      <h3>Angaben gemäß §5 TMG</h3>
+      <p>
+        <strong>Jörn Blöß</strong><br>
+        [ADRESSE]
+      </p>
 
-      <!-- Post 2 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🌧️</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Schlechtwetter</span>
-          <h2 class="blog-card__title">Heiligenhafen bei Regen: 8 Ideen wenn die Ostsee grummelt</h2>
-          <p class="blog-card__excerpt">Schatzinsel direkt nebenan, Meereszentrum Fehmarn, Badeparadies Weißenhäuser Strand – was wirklich funktioniert wenn die Ostsee Schietwetter schickt. Geordnet nach Entfernung.</p>
-          <div class="blog-card__meta">
-            <span>Mai 2026 · 7 min Lesezeit</span>
-            <a href="/blog/heiligenhafen-bei-regen/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
+      <h3>Kontakt</h3>
+      <p>E-Mail: <a href="mailto:buchung@fewo-seesternchen.de">buchung@fewo-seesternchen.de</a></p>
 
-      <!-- Post 3 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🎒</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Packliste</span>
-          <h2 class="blog-card__title">Ostsee mit Kleinkind: Was ihr wirklich braucht (und was nicht)</h2>
-          <p class="blog-card__excerpt">Windschutz, Gummistiefel, Bernstein-Beutel – und was ihr getrost zuhause lassen könnt weil es in der Wohnung schon da ist. Die ehrliche Packliste vom Vermieter.</p>
-          <div class="blog-card__meta">
-            <span>Mai 2026 · 6 min Lesezeit</span>
-            <a href="/blog/packliste-ostsee-kleinkinder/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
+      <h3>Hinweis</h3>
+      <p>Ich vermiete privat eine Ferienwohnung in Heiligenhafen. Es handelt sich dabei nicht um eine gewerbliche Tätigkeit im Sinne einer eingetragenen Firma.</p>
 
-      <!-- Post 5 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🎉</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Eventkalender</span>
-          <h2 class="blog-card__title">Events Heiligenhafen 2026: Highlights für deinen Urlaub</h2>
-          <p class="blog-card__excerpt">Street Food Festival direkt im Ferienpark, Hafenfesttage, Drachenfest, Lichtermeer – alle Termine 2026 auf einen Blick. Damit ihr euren Urlaub rund ums Highlight planen könnt.</p>
-          <div class="blog-card__meta">
-            <span>Mai 2026 · 5 min Lesezeit</span>
-            <a href="/blog/veranstaltungen-heiligenhafen-2026/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
+      <h3>EU-Streitschlichtung</h3>
+      <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr</a>. Meine E-Mail-Adresse findest du oben in diesem Impressum.</p>
 
-      <!-- Post 4 -->
-      <article class="blog-card">
-        <div class="blog-card__img">🍂</div>
-        <div class="blog-card__body">
-          <span class="blog-card__cat">Nebensaison</span>
-          <h2 class="blog-card__title">Heiligenhafen im Herbst: 6 Gründe die Nebensaison zu unterschätzen</h2>
-          <p class="blog-card__excerpt">Günstigere Preise, Bernstein nach dem ersten Sturm, Vogelzug am Graswarder und kein Parkplatzstress – warum Herbst an der Ostsee oft entspannter ist als Hochsommer.</p>
-          <div class="blog-card__meta">
-            <span>Mai 2026 · 6 min Lesezeit</span>
-            <a href="/blog/heiligenhafen-herbst/" class="blog-card__link">Weiterlesen →</a>
-          </div>
-        </div>
-      </article>
-
+      <h3>Verbraucherstreitbeilegung</h3>
+      <p>Ich bin nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
     </div>
 
-    <!-- CTA -->
-    <div class="cta-banner">
-      <div>
-        <h2>Bereit für Heiligenhafen? 🌊</h2>
-        <p>43 m², separates Kinderzimmer, 8 Minuten zum Strand. Ostsee-Card inklusive.</p>
-      </div>
-      <a href="/#kontakt" class="btn-coral">Jetzt direkt anfragen →</a>
+    <!-- Datenschutz -->
+    <div class="legal-card">
+      <h2>Datenschutzerklärung</h2>
+
+      <h3>1. Verantwortlicher</h3>
+      <p>
+        Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br>
+        <strong>Jörn Blöß</strong>, [ADRESSE]<br>
+        E-Mail: <a href="mailto:buchung@fewo-seesternchen.de">buchung@fewo-seesternchen.de</a>
+      </p>
+
+      <h3>2. Kontaktformular</h3>
+      <p>Wenn du über das Kontaktformular eine Anfrage stellst, werden die von dir angegebenen Daten (z.&nbsp;B. Name, E-Mail-Adresse, Nachricht) zur Bearbeitung deiner Anfrage bei mir gespeichert. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO, da die Verarbeitung zur Anbahnung bzw. Erfüllung eines Vertrags (der Buchung) erforderlich ist.</p>
+
+      <h3>3. Formularverarbeitung über Netlify</h3>
+      <p>Das Kontaktformular wird technisch über Netlify Forms verarbeitet, einen Dienst der Netlify, Inc. (USA). Dabei können deine Formulardaten an Server in den USA übermittelt werden. Als Schutzmaßnahme für die Datenübermittlung in dieses Drittland kommen die von der EU-Kommission anerkannten Standardvertragsklauseln (SCC) zum Einsatz.</p>
+
+      <h3>4. Cookies</h3>
+      <p>Diese Website verwendet keine Cookies außer technisch notwendigen Cookies, die für den Betrieb und die Absicherung des Kontaktformulars erforderlich sind.</p>
+
+      <h3>5. Deine Rechte</h3>
+      <p>Du hast jederzeit das Recht auf Auskunft über deine gespeicherten Daten, deren Herkunft und Empfänger sowie den Zweck der Datenverarbeitung. Ebenso hast du ein Recht auf Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch gegen die Verarbeitung sowie auf Datenübertragbarkeit. Wende dich hierfür an: <a href="mailto:buchung@fewo-seesternchen.de">buchung@fewo-seesternchen.de</a>.</p>
+      <p>Außerdem steht dir ein Beschwerderecht bei der zuständigen Datenschutz-Aufsichtsbehörde zu.</p>
+
+      <h3>6. Kein Tracking</h3>
+      <p>Auf dieser Website werden weder Google Analytics noch andere Tracking- oder Analysewerkzeuge von Drittanbietern eingesetzt.</p>
     </div>
+
   </div>
 </section>
 
