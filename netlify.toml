@@ -69,6 +69,12 @@
   status = 301
   force  = true
 
+# Impressum-Verzeichnis explizit an index.html weiterleiten (vor dem Catch-All)
+[[redirects]]
+  from   = "/impressum/"
+  to     = "/impressum/index.html"
+  status = 200
+
 # Catch-All: 404-Seite
 [[redirects]]
   from   = "/*"
