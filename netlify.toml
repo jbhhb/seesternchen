@@ -4,9 +4,9 @@
 # ─────────────────────────────────────────────
 
 [build]
-  publish = "."                      # Root-Verzeichnis ist der Build-Output
-  command = ""                       # Kein Build-Schritt nötig (reines HTML)
-  functions = "netlify/functions"    # Serverless Functions für iCal-Proxy
+  publish = "."
+  command = "python3 -c \"import os; addr=os.environ.get('IMPRESSUM_ADRESSE',''); f=open('impressum/index.html','r',encoding='utf-8'); c=f.read(); f.close(); c=c.replace('[ADRESSE]',addr); f=open('impressum/index.html','w',encoding='utf-8'); f.write(c); f.close()\""
+  functions = "netlify/functions"
 
 # ── Produktions-Kontext ──────────────────────
 [context.production]
