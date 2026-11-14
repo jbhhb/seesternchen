@@ -353,6 +353,13 @@
       .foot-bottom { flex-direction: column; text-align: center; }
       .inline-cta { flex-direction: column; text-align: center; }
     }
+    /* ── MOBILE-FIX: Sidebar nicht mehr sticky über dem Text, kein Überlaufen ── */
+    @media (max-width: 900px) {
+      .post-layout { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-left: 1.2rem; padding-right: 1.2rem; }
+      .post-layout > * { min-width: 0; }
+      .post-sidebar { position: static; top: auto; order: 1; }
+      .post-content table { display: block; max-width: 100%; overflow-x: auto; }
+    }
   </style>
 </head>
 <body id="top">
